@@ -160,7 +160,7 @@ body {
 
 .estoque-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 15px;
 }
 
@@ -475,6 +475,10 @@ th {
                 <span>💻 Notebooks em Estoque</span>
                 <strong id="estNotebooks">0</strong>
             </div>
+            <div class="estoque-item">
+                <span>🔧 Headsets Quebrados</span>
+                <strong id="estHeadsetsQuebrados">0</strong>
+            </div>
         </div>
     </section>
 
@@ -633,6 +637,10 @@ th {
                 <label>Notebooks (+):</label>
                 <input type="number" id="addNotebook" min="0" value="0">
             </div>
+            <div class="campo">
+                <label>🔧 Headsets Quebrados (+):</label>
+                <input type="number" id="addHeadsetsQuebrados" min="0" value="0">
+            </div>
         </div>
         <div class="modal-buttons">
             <button class="btn-excluir" onclick="fecharModalEstoque()">Cancelar</button>
@@ -652,7 +660,8 @@ let estoque = JSON.parse(localStorage.getItem("estoqueEquipamentos")) || {
     teclados: 0,
     mouses: 0,
     headsets: 0,
-    notebooks: 0
+    notebooks: 0,
+    headsetsQuebrados: 0
 };
 
 /* =========================================
@@ -688,13 +697,10 @@ function registrarSaida() {
         return;
     }
 
-    // REGRA 2: VERIFICAÇÃO DE ESTOQUE DISPONÍVEL
-    if (teclado > estoque.teclados || mouse > estoque.mouses || headset > estoque.headsets || notebook > estoque.notebooks) {
-        alert("Quantidade solicitada é maior do que o estoque disponível em armazenamento!");
-        return;
-    }
+    /* CRIAR REGISTRO DE SAÍDA
+       OBS: A saída é independente do estoque. */
 
-    /* CRIAR REGISTRO E DESCONTAR DO ESTOQUE */
+
 
     const registro = {
         id: Date.now(),
@@ -711,17 +717,11 @@ function registrarSaida() {
         observacao
     };
 
-    // Atualiza o estoque
-    estoque.teclados -= teclado;
-    estoque.mouses -= mouse;
-    estoque.headsets -= headset;
-    estoque.notebooks -= notebook;
-
+    // Registra a saída SEM alterar o estoque
     registros.push(registro);
 
-    // Salva no LocalStorage
+    // Salva somente os registros de saída
     localStorage.setItem("saidasEquipamentos", JSON.stringify(registros));
-    localStorage.setItem("estoqueEquipamentos", JSON.stringify(estoque));
 
     /* LIMPAR FORMULÁRIO */
     document.getElementById("responsavel").value = "";
@@ -756,11 +756,13 @@ function salvarNovoEstoque() {
     const addMouse = Number(document.getElementById("addMouse").value) || 0;
     const addHeadset = Number(document.getElementById("addHeadset").value) || 0;
     const addNotebook = Number(document.getElementById("addNotebook").value) || 0;
+    const addHeadsetsQuebrados = Number(document.getElementById("addHeadsetsQuebrados").value) || 0;
 
     estoque.teclados += addTeclado;
     estoque.mouses += addMouse;
     estoque.headsets += addHeadset;
     estoque.notebooks += addNotebook;
+    estoque.headsetsQuebrados += addHeadsetsQuebrados;
 
     localStorage.setItem("estoqueEquipamentos", JSON.stringify(estoque));
 
@@ -769,6 +771,7 @@ function salvarNovoEstoque() {
     document.getElementById("addMouse").value = 0;
     document.getElementById("addHeadset").value = 0;
     document.getElementById("addNotebook").value = 0;
+    document.getElementById("addHeadsetsQuebrados").value = 0;
 
     fecharModalEstoque();
     atualizarTela();
@@ -790,6 +793,7 @@ function atualizarEstoqueDisplay() {
     document.getElementById("estMouses").textContent = estoque.mouses;
     document.getElementById("estHeadsets").textContent = estoque.headsets;
     document.getElementById("estNotebooks").textContent = estoque.notebooks;
+    document.getElementById("estHeadsetsQuebrados").textContent = estoque.headsetsQuebrados || 0;
 }
 
 function atualizarTotais() {
