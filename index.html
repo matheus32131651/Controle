@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Controle de Saída de Equipamentos</title>
+
+<style>
+
+/* =========================================
+   CONFIGURAÇÕES GERAIS
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #f4f6fb;
+    color: #172554;
+}
+
+/* =========================================
+   TOPO
+========================================= */
+
+.topbar {
+    background: #07142d;
+    color: white;
+    padding: 20px 35px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 3px 15px rgba(0,0,0,.15);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: #126be9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 23px;
+}
+
+.logo h2 {
+    font-size: 20px;
+}
+
+.logo span {
+    color: #aebbd2;
+    font-size: 12px;
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.container {
+    width: 95%;
+    max-width: 1400px;
+    margin: 30px auto;
+}
+
+/* =========================================
+   TÍTULO
+========================================= */
+
+.page-title {
+    margin-bottom: 25px;
+}
+
+.page-title h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.page-title p {
+    color: #6b7893;
+}
+
+/* =========================================
+   CARDS / INDICADORES
+========================================= */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e3e8f1;
+    box-shadow: 0 5px 20px rgba(26,50,100,.07);
+}
+
+.card span {
+    display: block;
+    color: #6b7893;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.card strong {
+    font-size: 28px;
+    color: #126be9;
+}
+
+/* =========================================
+   ESTOQUE / ARMAZENAMENTO
+========================================= */
+
+.estoque-box {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid #e3e8f1;
+    box-shadow: 0 5px 20px rgba(26,50,100,.07);
+    margin-bottom: 25px;
+}
+
+.estoque-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-add-estoque {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-add-estoque:hover {
+    background: #218838;
+}
+
+.estoque-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.estoque-item {
+    background: #f8fbfd;
+    border: 1px solid #dce5f2;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.estoque-item span {
+    display: block;
+    font-size: 13px;
+    color: #5d6d8e;
+    margin-bottom: 5px;
+}
+
+.estoque-item strong {
+    font-size: 22px;
+    color: #07142d;
+}
+
+/* =========================================
+   FORMULÁRIO
+========================================= */
+
+.form-box {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid #e3e8f1;
+    box-shadow: 0 5px 20px rgba(26,50,100,.07);
+    margin-bottom: 25px;
+}
+
+.form-box h2 {
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+}
+
+.campo label {
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+    padding: 12px;
+    border: 1px solid #d6deeb;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    border-color: #126be9;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+/* =========================================
+   EQUIPAMENTOS
+========================================= */
+
+.equipamentos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.equipamento {
+    border: 1px solid #dce3ef;
+    border-radius: 10px;
+    padding: 15px;
+    background: #f9fbff;
+}
+
+.equipamento label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.equipamento input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccd6e5;
+    border-radius: 7px;
+}
+
+/* =========================================
+   BOTÕES GERAIS
+========================================= */
+
+.btn-registrar {
+    margin-top: 20px;
+    padding: 13px 22px;
+    background: #126be9;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.btn-registrar:hover {
+    background: #0b5dcc;
+}
+
+.btn-imprimir {
+    background: #172554;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.btn-imprimir:hover {
+    background: #0d1738;
+}
+
+/* =========================================
+   RESUMO POR SETOR E HISTÓRICO
+========================================= */
+
+.resumo, .historico {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid #e3e8f1;
+    box-shadow: 0 5px 20px rgba(26,50,100,.07);
+    margin-bottom: 25px;
+}
+
+.resumo h2, .historico h2 {
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 13px;
+    border-bottom: 1px solid #e8edf5;
+    text-align: left;
+    font-size: 13px;
+}
+
+th {
+    background: #f4f7fc;
+    color: #34415d;
+}
+
+.porcentagem {
+    font-weight: bold;
+    color: #126be9;
+}
+
+.btn-excluir {
+    background: #fff1f2;
+    color: #dc3545;
+    border: 1px solid #f1c5ca;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-excluir:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* =========================================
+   MODAL PARA EDIÇÃO/ENTRADA DE ESTOQUE
+========================================= */
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+}
+
+.modal h3 {
+    margin-bottom: 15px;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* =========================================
+   RESPONSIVO E IMPRESSÃO
+========================================= */
+
+@media(max-width: 900px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+    .equipamentos { grid-template-columns: repeat(2, 1fr); }
+    .estoque-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 600px) {
+    .cards { grid-template-columns: 1fr; }
+    .topbar { padding: 15px; }
+    .container { width: 92%; }
+    .equipamentos { grid-template-columns: 1fr; }
+    .estoque-grid { grid-template-columns: 1fr; }
+    table { display: block; overflow-x: auto; }
+}
+
+@media print {
+    body { background: white; color: black; }
+    .topbar { box-shadow: none; }
+    .form-box, .estoque-box, .btn-excluir, .btn-imprimir, .btn-add-estoque { display: none !important; }
+    .container { width: 100%; max-width: none; margin: 10px; }
+    .cards { grid-template-columns: repeat(5, 1fr); }
+    .resumo, .historico { box-shadow: none; border: 1px solid #ccc; }
+    table { page-break-inside: auto; }
+    tr { page-break-inside: avoid; }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOPO -->
+<header class="topbar">
+    <div class="logo">
+        <div class="logo-icon">📦</div>
+        <div>
+            <h2>Controle de Equipamentos</h2>
+            <span>Registro de saída - TI</span>
+        </div>
+    </div>
+</header>
+
+<!-- CONTEÚDO -->
+<main class="container">
+
+    <div class="page-title">
+        <h1>📦 Saída de Equipamentos</h1>
+        <p>Registre a saída de teclados, mouses, headsets e notebooks para os setores da empresa.</p>
+    </div>
+
+    <!-- SEÇÃO DE ARMAZENAMENTO / ESTOQUE DISPONÍVEL -->
+    <section class="estoque-box">
+        <div class="estoque-header">
+            <h2>🏢 Armazenamento & Estoque Atual</h2>
+            <button class="btn-add-estoque" onclick="abrirModalEstoque()">➕ Adicionar / Editar Estoque</button>
+        </div>
+        <div class="estoque-grid">
+            <div class="estoque-item">
+                <span>⌨️ Teclados em Estoque</span>
+                <strong id="estTeclados">0</strong>
+            </div>
+            <div class="estoque-item">
+                <span>🖱️ Mouses em Estoque</span>
+                <strong id="estMouses">0</strong>
+            </div>
+            <div class="estoque-item">
+                <span>🎧 Headsets em Estoque</span>
+                <strong id="estHeadsets">0</strong>
+            </div>
+            <div class="estoque-item">
+                <span>💻 Notebooks em Estoque</span>
+                <strong id="estNotebooks">0</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- INDICADORES DE SAÍDA -->
+    <div class="cards">
+        <div class="card">
+            <span>📦 Total saídas</span>
+            <strong id="totalEquipamentos">0</strong>
+        </div>
+        <div class="card">
+            <span>⌨️ Teclados saídos</span>
+            <strong id="totalTeclados">0</strong>
+        </div>
+        <div class="card">
+            <span>🖱️ Mouses saídos</span>
+            <strong id="totalMouses">0</strong>
+        </div>
+        <div class="card">
+            <span>🎧 Headsets saídos</span>
+            <strong id="totalHeadsets">0</strong>
+        </div>
+        <div class="card">
+            <span>💻 Notebooks saídos</span>
+            <strong id="totalNotebooks">0</strong>
+        </div>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <section class="form-box">
+        <h2>➕ Registrar nova saída</h2>
+
+        <div class="form-grid">
+            <div class="campo">
+                <label>Responsável</label>
+                <input type="text" id="responsavel" placeholder="Nome do responsável">
+            </div>
+
+            <div class="campo">
+                <label>Número do chamado</label>
+                <input type="text" id="chamado" placeholder="Ex.: CH-123456">
+            </div>
+
+            <div class="campo">
+                <label>📅 Data do registro</label>
+                <input type="date" id="dataRegistro">
+            </div>
+
+            <div class="campo">
+                <label>🔒 Número do lacre <small style="color: #6b7893; font-weight: normal;">(Obrigatório apenas para Headset)</small></label>
+                <input type="text" id="lacre" placeholder="Digite o número do lacre">
+            </div>
+
+            <div class="campo">
+                <label>Setor</label>
+                <select id="setor">
+                    <option value="">Selecione o setor</option>
+                    <option value="LIGMINAS">LIGMINAS</option>
+                    <option value="ME">ME</option>
+                    <option value="SEST/SENAT">SEST/SENAT</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="margin-top:25px; margin-bottom:12px;">Equipamentos retirados</h3>
+
+        <div class="equipamentos">
+            <div class="equipamento">
+                <label>⌨️ Teclados</label>
+                <input type="number" id="teclado" min="0" value="0">
+            </div>
+
+            <div class="equipamento">
+                <label>🖱️ Mouses</label>
+                <input type="number" id="mouse" min="0" value="0">
+            </div>
+
+            <div class="equipamento">
+                <label>🎧 Headsets</label>
+                <input type="number" id="headset" min="0" value="0">
+            </div>
+
+            <div class="equipamento">
+                <label>💻 Notebooks</label>
+                <input type="number" id="notebook" min="0" value="0">
+            </div>
+        </div>
+
+        <div class="campo" style="margin-top:20px;">
+            <label>Observação</label>
+            <textarea id="observacao" placeholder="Digite alguma observação..."></textarea>
+        </div>
+
+        <button class="btn-registrar" onclick="registrarSaida()">📦 Registrar saída</button>
+    </section>
+
+    <!-- RESUMO -->
+    <section class="resumo">
+        <h2>📊 Resumo por setor</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Setor</th>
+                    <th>Quantidade</th>
+                    <th>Porcentagem</th>
+                </tr>
+            </thead>
+            <tbody id="resumoSetores"></tbody>
+        </table>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section class="historico">
+        <h2>📋 Histórico de saídas</h2>
+        <button class="btn-imprimir" onclick="imprimirRelatorio()">🖨️ Imprimir relatório final</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data do Registro</th>
+                    <th>Responsável</th>
+                    <th>Nº Chamado</th>
+                    <th>Nº Lacre</th>
+                    <th>Setor</th>
+                    <th>Teclados</th>
+                    <th>Mouses</th>
+                    <th>Headsets</th>
+                    <th>Notebooks</th>
+                    <th>Total</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="historico"></tbody>
+        </table>
+    </section>
+
+</main>
+
+<!-- MODAL PARA ADICIONAR ESTOQUE -->
+<div class="modal-overlay" id="modalEstoque">
+    <div class="modal">
+        <h3>➕ Entrada de Estoque / Armazenamento</h3>
+        <p style="font-size: 13px; color: #6b7893; margin-bottom: 15px;">Informe a quantidade a acrescentar ao estoque atual:</p>
+        <div class="modal-grid">
+            <div class="campo">
+                <label>Teclados (+):</label>
+                <input type="number" id="addTeclado" min="0" value="0">
+            </div>
+            <div class="campo">
+                <label>Mouses (+):</label>
+                <input type="number" id="addMouse" min="0" value="0">
+            </div>
+            <div class="campo">
+                <label>Headsets (+):</label>
+                <input type="number" id="addHeadset" min="0" value="0">
+            </div>
+            <div class="campo">
+                <label>Notebooks (+):</label>
+                <input type="number" id="addNotebook" min="0" value="0">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn-excluir" onclick="fecharModalEstoque()">Cancelar</button>
+            <button class="btn-add-estoque" onclick="salvarNovoEstoque()">Adicionar ao Estoque</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+/* =========================================
+   DADOS E LOCALSTORAGE
+========================================= */
+
+let registros = JSON.parse(localStorage.getItem("saidasEquipamentos")) || [];
+let estoque = JSON.parse(localStorage.getItem("estoqueEquipamentos")) || {
+    teclados: 0,
+    mouses: 0,
+    headsets: 0,
+    notebooks: 0
+};
+
+/* =========================================
+   REGISTRAR SAÍDA COM REGRAS SOLICITADAS
+========================================= */
+
+function registrarSaida() {
+    const responsavel = document.getElementById("responsavel").value.trim();
+    const chamado = document.getElementById("chamado").value.trim();
+    const setor = document.getElementById("setor").value;
+    const teclado = Number(document.getElementById("teclado").value) || 0;
+    const mouse = Number(document.getElementById("mouse").value) || 0;
+    const headset = Number(document.getElementById("headset").value) || 0;
+    const notebook = Number(document.getElementById("notebook").value) || 0;
+    const observacao = document.getElementById("observacao").value.trim();
+    const dataRegistro = document.getElementById("dataRegistro").value;
+    const lacre = document.getElementById("lacre").value.trim();
+
+    /* VALIDAÇÕES */
+
+    if (!responsavel) { alert("Digite o nome do responsável."); return; }
+    if (!setor) { alert("Selecione o setor."); return; }
+    if (!chamado) { alert("Informe o número do chamado."); return; }
+    if (!dataRegistro) { alert("Informe a data do registro."); return; }
+
+    const total = teclado + mouse + headset + notebook;
+
+    if (total <= 0) { alert("Informe pelo menos um equipamento."); return; }
+
+    // REGRA 1: LACRE OBRIGATÓRIO APENAS SE HOUVER HEADSET
+    if (headset > 0 && !lacre) {
+        alert("O número do lacre é OBRIGATÓRIO quando houver saída de Headsets.");
+        return;
+    }
+
+    // REGRA 2: VERIFICAÇÃO DE ESTOQUE DISPONÍVEL
+    if (teclado > estoque.teclados || mouse > estoque.mouses || headset > estoque.headsets || notebook > estoque.notebooks) {
+        alert("Quantidade solicitada é maior do que o estoque disponível em armazenamento!");
+        return;
+    }
+
+    /* CRIAR REGISTRO E DESCONTAR DO ESTOQUE */
+
+    const registro = {
+        id: Date.now(),
+        dataRegistro,
+        lacre: lacre || "-",
+        responsavel,
+        chamado,
+        setor,
+        teclado,
+        mouse,
+        headset,
+        notebook,
+        total,
+        observacao
+    };
+
+    // Atualiza o estoque
+    estoque.teclados -= teclado;
+    estoque.mouses -= mouse;
+    estoque.headsets -= headset;
+    estoque.notebooks -= notebook;
+
+    registros.push(registro);
+
+    // Salva no LocalStorage
+    localStorage.setItem("saidasEquipamentos", JSON.stringify(registros));
+    localStorage.setItem("estoqueEquipamentos", JSON.stringify(estoque));
+
+    /* LIMPAR FORMULÁRIO */
+    document.getElementById("responsavel").value = "";
+    document.getElementById("chamado").value = "";
+    document.getElementById("dataRegistro").value = "";
+    document.getElementById("lacre").value = "";
+    document.getElementById("setor").value = "";
+    document.getElementById("teclado").value = 0;
+    document.getElementById("mouse").value = 0;
+    document.getElementById("headset").value = 0;
+    document.getElementById("notebook").value = 0;
+    document.getElementById("observacao").value = "";
+
+    alert("✅ Saída registrada com sucesso!");
+    atualizarTela();
+}
+
+/* =========================================
+   CONTROLE DE ESTOQUE (MODAL)
+========================================= */
+
+function abrirModalEstoque() {
+    document.getElementById("modalEstoque").style.display = "flex";
+}
+
+function fecharModalEstoque() {
+    document.getElementById("modalEstoque").style.display = "none";
+}
+
+function salvarNovoEstoque() {
+    const addTeclado = Number(document.getElementById("addTeclado").value) || 0;
+    const addMouse = Number(document.getElementById("addMouse").value) || 0;
+    const addHeadset = Number(document.getElementById("addHeadset").value) || 0;
+    const addNotebook = Number(document.getElementById("addNotebook").value) || 0;
+
+    estoque.teclados += addTeclado;
+    estoque.mouses += addMouse;
+    estoque.headsets += addHeadset;
+    estoque.notebooks += addNotebook;
+
+    localStorage.setItem("estoqueEquipamentos", JSON.stringify(estoque));
+
+    // Limpa campos do modal
+    document.getElementById("addTeclado").value = 0;
+    document.getElementById("addMouse").value = 0;
+    document.getElementById("addHeadset").value = 0;
+    document.getElementById("addNotebook").value = 0;
+
+    fecharModalEstoque();
+    atualizarTela();
+}
+
+/* =========================================
+   ATUALIZAÇÕES DE TELA
+========================================= */
+
+function atualizarTela() {
+    atualizarEstoqueDisplay();
+    atualizarTotais();
+    atualizarResumo();
+    atualizarHistorico();
+}
+
+function atualizarEstoqueDisplay() {
+    document.getElementById("estTeclados").textContent = estoque.teclados;
+    document.getElementById("estMouses").textContent = estoque.mouses;
+    document.getElementById("estHeadsets").textContent = estoque.headsets;
+    document.getElementById("estNotebooks").textContent = estoque.notebooks;
+}
+
+function atualizarTotais() {
+    let teclados = 0, mouses = 0, headsets = 0, notebooks = 0;
+
+    registros.forEach(r => {
+        teclados += r.teclado;
+        mouses += r.mouse;
+        headsets += r.headset;
+        notebooks += r.notebook || 0;
+    });
+
+    document.getElementById("totalEquipamentos").textContent = teclados + mouses + headsets + notebooks;
+    document.getElementById("totalTeclados").textContent = teclados;
+    document.getElementById("totalMouses").textContent = mouses;
+    document.getElementById("totalHeadsets").textContent = headsets;
+    document.getElementById("totalNotebooks").textContent = notebooks;
+}
+
+function atualizarResumo() {
+    const setores = {};
+
+    registros.forEach(r => {
+        if (!setores[r.setor]) setores[r.setor] = 0;
+        setores[r.setor] += r.total;
+    });
+
+    const totalGeral = Object.values(setores).reduce((tot, val) => tot + val, 0);
+    const tabela = document.getElementById("resumoSetores");
+    tabela.innerHTML = "";
+
+    Object.entries(setores).sort((a, b) => b[1] - a[1]).forEach(([setor, qtd]) => {
+        const perc = totalGeral > 0 ? (qtd / totalGeral) * 100 : 0;
+        const linha = document.createElement("tr");
+        linha.innerHTML = `
+            <td>${escaparHTML(setor)}</td>
+            <td>${qtd}</td>
+            <td class="porcentagem">${perc.toFixed(2)}%</td>
+        `;
+        tabela.appendChild(linha);
+    });
+}
+
+function atualizarHistorico() {
+    const tabela = document.getElementById("historico");
+    tabela.innerHTML = "";
+
+    registros.slice().reverse().forEach(r => {
+        const linha = document.createElement("tr");
+        linha.innerHTML = `
+            <td>${escaparHTML(r.dataRegistro)}</td>
+            <td>${escaparHTML(r.responsavel)}</td>
+            <td>${escaparHTML(r.chamado || "Não informado")}</td>
+            <td>${escaparHTML(r.lacre)}</td>
+            <td>${escaparHTML(r.setor)}</td>
+            <td>${r.teclado}</td>
+            <td>${r.mouse}</td>
+            <td>${r.headset}</td>
+            <td>${r.notebook || 0}</td>
+            <td><strong>${r.total}</strong></td>
+            <td>
+                <button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️ Excluir</button>
+            </td>
+        `;
+        tabela.appendChild(linha);
+    });
+}
+
+function imprimirRelatorio() {
+    if (registros.length === 0) {
+        alert("Não há registros para imprimir.");
+        return;
+    }
+    window.print();
+}
+
+function excluirRegistro(id) {
+    if (!confirm("Tem certeza que deseja excluir este registro?")) return;
+
+    registros = registros.filter(r => r.id !== id);
+    localStorage.setItem("saidasEquipamentos", JSON.stringify(registros));
+    atualizarTela();
+}
+
+function escaparHTML(texto) {
+    if (!texto) return "";
+    return texto
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+/* INICIALIZAÇÃO */
+atualizarTela();
+
+</script>
+
+</body>
+</html>
