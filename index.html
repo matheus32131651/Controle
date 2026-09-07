@@ -572,7 +572,24 @@ th {
 </main>
 
 <script>
-let registros = JSON.parse(localStorage.getItem("saidasEquipamentos")) || [];
+let registros = [];
+
+async function carregarRegistros() {
+    const { data, error } = await supabaseClient
+        .from("saidas_equipamentos")
+        .select("*")
+        .order("id", { ascending: false });
+
+    if (error) {
+        console.error(error);
+        alert("Erro ao carregar os registros.");
+        return;
+    }
+
+    registros = data || [];
+
+    atualizarTela();
+}
 
 function registrarSaida() {
     const responsavel = document.getElementById("responsavel").value.trim(),
@@ -595,23 +612,28 @@ function registrarSaida() {
     if (total <= 0) return alert("Informe pelo menos um equipamento.");
     if (headset > 0 && !lacre) return alert("O número do lacre é OBRIGATÓRIO quando houver saída de Headsets.");
 
-    registros.push({
-        id: Date.now(),
-        dataRegistro,
-        lacre: lacre || "-",
-        responsavel,
-        chamado,
-        setor,
-        teclado,
-        mouse,
-        headset,
-        notebook,
-        total,
-        observacao
-    });
+    const { data, error } = await supabaseClient
+    .from("saidas_equipamentos")
+    .insert([{
+        data_registro: dataRegistro,
+        lacre: lacre || null,
+        responsavel: responsavel,
+        chamado: chamado,
+        setor: setor,
+        teclado: teclado,
+        mouse: mouse,
+        headset: headset,
+        notebook: notebook,
+        total: total,
+        observacao: observacao || null
+    }])
+    .select();
 
-    localStorage.setItem("saidasEquipamentos", JSON.stringify(registros));
-
+if (error) {
+    console.error(error);
+    alert("Erro ao registrar a saída.");
+    return;
+}
     ["responsavel", "chamado", "dataRegistro", "lacre", "observacao"].forEach(id => document.getElementById(id).value = "");
     document.getElementById("setor").value = "";
     ["teclado", "mouse", "headset", "notebook"].forEach(id => document.getElementById(id).value = 0);
@@ -656,7 +678,7 @@ function atualizarResumo() {
     });
 }
 
-function atualizarHistorico() {
+async function atualizarHistorico() {
     const tb = document.getElementById("historico");
     tb.innerHTML = "";
     registros.slice().reverse().forEach(r => {
@@ -666,19 +688,32 @@ function atualizarHistorico() {
     });
 }
 
-function imprimirRelatorio() {
+async function imprimirRelatorio() {
     if (!registros.length) return alert("Não há registros para imprimir.");
     window.print();
 }
 
-function excluirRegistro(id) {
-    if (!confirm("Tem certeza que deseja excluir este registro?")) return;
-    registros = registros.filter(r => r.id !== id);
-    localStorage.setItem("saidasEquipamentos", JSON.stringify(registros));
-    atualizarTela();
+async function excluirRegistro(id) {
+
+    if (!confirm("Tem certeza que deseja excluir este registro?")) {
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("saidas_equipamentos")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        console.error(error);
+        alert("Erro ao excluir o registro.");
+        return;
+    }
+
+    await carregarRegistros();
 }
 
-function escaparHTML(t) {
+async function escaparHTML(t) {
     if (!t) return "";
     return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
