@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro Interno - TI</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+
+body{
+    background:#f4f6fb;
+    color:#172554;
+}
+
+.topbar{
+    background:#07142d;
+    color:white;
+    padding:20px 35px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 3px 15px rgba(0,0,0,.15);
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    background:#126be9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:23px;
+}
+
+.logo h2{font-size:20px}
+.logo span{color:#aebbd2;font-size:12px}
+
+.nav-pages{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.nav-btn{
+    border:none;
+    padding:11px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.nav-btn.saida{background:#126be9;color:white}
+.nav-btn.interno{background:#22c55e;color:white}
+.nav-btn:hover{filter:brightness(.92)}
+
+.container{
+    width:95%;
+    max-width:1400px;
+    margin:30px auto;
+}
+
+.page-title{margin-bottom:25px}
+.page-title h1{font-size:28px;margin-bottom:8px}
+.page-title p{color:#6b7893}
+
+.form-box,.historico{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    border:1px solid #e3e8f1;
+    box-shadow:0 5px 20px rgba(26,50,100,.07);
+    margin-bottom:25px;
+}
+
+.form-box h2,.historico h2{margin-bottom:20px}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.campo{
+    display:flex;
+    flex-direction:column;
+}
+
+.campo label{
+    font-weight:bold;
+    font-size:13px;
+    margin-bottom:7px;
+}
+
+.campo input,
+.campo select,
+.campo textarea{
+    padding:12px;
+    border:1px solid #d6deeb;
+    border-radius:8px;
+    outline:none;
+    font-size:14px;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus{
+    border-color:#126be9;
+}
+
+textarea{
+    resize:vertical;
+    min-height:110px;
+}
+
+.campo-full{
+    grid-column:1 / -1;
+}
+
+.btn-registrar{
+    margin-top:20px;
+    padding:13px 22px;
+    background:#126be9;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.btn-registrar:hover{background:#0b5dcc}
+
+.btn-imprimir{
+    background:#172554;
+    color:white;
+    border:none;
+    padding:10px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.btn-imprimir:hover{background:#0d1738}
+
+.btn-excluir{
+    background:#fff1f2;
+    color:#dc3545;
+    border:1px solid #f1c5ca;
+    padding:7px 10px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.btn-excluir:hover{
+    background:#dc3545;
+    color:white;
+}
+
+.badge{
+    display:inline-block;
+    margin-top:10px;
+    padding:6px 10px;
+    border-radius:20px;
+    background:#eaf2ff;
+    color:#126be9;
+    font-size:12px;
+    font-weight:bold;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:13px;
+    border-bottom:1px solid #e8edf5;
+    text-align:left;
+    font-size:13px;
+    vertical-align:top;
+}
+
+th{
+    background:#f4f7fc;
+    color:#34415d;
+}
+
+.tipo-saida{
+    display:inline-block;
+    background:#fff1f2;
+    color:#dc3545;
+    padding:5px 9px;
+    border-radius:15px;
+    font-weight:bold;
+    font-size:12px;
+}
+
+.tipo-recebimento{
+    display:inline-block;
+    background:#ecfdf3;
+    color:#16803c;
+    padding:5px 9px;
+    border-radius:15px;
+    font-weight:bold;
+    font-size:12px;
+}
+
+.descricao{
+    min-width:280px;
+    white-space:pre-wrap;
+}
+
+.observacao{
+    min-width:220px;
+    white-space:pre-wrap;
+    color:#5d6d8e;
+}
+
+@media(max-width:900px){
+    .form-grid{grid-template-columns:1fr}
+    .campo-full{grid-column:auto}
+}
+
+@media(max-width:700px){
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .nav-pages{width:100%}
+    .nav-btn{flex:1;text-align:center}
+
+    .container{width:92%}
+
+    table{
+        display:block;
+        overflow-x:auto;
+        white-space:nowrap;
+    }
+}
+
+@media print{
+    body{background:white;color:black}
+    .topbar{box-shadow:none}
+    .form-box,.btn-excluir,.btn-imprimir,.nav-pages{display:none!important}
+    .container{width:100%;max-width:none;margin:10px}
+    .historico{box-shadow:none;border:1px solid #ccc}
+    table{page-break-inside:auto}
+    tr{page-break-inside:avoid}
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="logo">
+        <div class="logo-icon">📋</div>
+        <div>
+            <h2>Controle de Equipamentos</h2>
+            <span>Registro interno - TI</span>
+        </div>
+    </div>
+
+    <nav class="nav-pages">
+        <a class="nav-btn saida" href="index.html">📤 Saída de Equipamentos</a>
+        <a class="nav-btn interno" href="registro-interno.html">📋 Registro Interno</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <div class="page-title">
+        <h1>📋 Registro Interno</h1>
+        <p>Registre movimentações, entregas, recebimentos e outras ocorrências relacionadas aos equipamentos.</p>
+        <span class="badge">💾 Histórico independente do registro de saída</span>
+    </div>
+
+    <section class="form-box">
+        <h2>➕ Novo registro</h2>
+
+        <div class="form-grid">
+
+            <div class="campo">
+                <label>📅 Data do registro</label>
+                <input type="date" id="dataRegistro">
+            </div>
+
+            <div class="campo">
+                <label>🔄 Tipo do registro</label>
+                <select id="tipo">
+                    <option value="">Selecione</option>
+                    <option value="Saída">Saída</option>
+                    <option value="Recebimento">Recebimento</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>📦 Equipamento / Material</label>
+                <input type="text" id="equipamento" placeholder="Ex.: Computadores, notebooks, teclados...">
+            </div>
+
+            <div class="campo">
+                <label>🔢 Quantidade</label>
+                <input type="number" id="quantidade" min="1" value="1">
+            </div>
+
+            <div class="campo">
+                <label>👤 Responsável</label>
+                <input type="text" id="responsavel" placeholder="Nome do responsável">
+            </div>
+
+            <div class="campo">
+                <label>🏢 Origem / Destino</label>
+                <input type="text" id="origemDestino" placeholder="Ex.: Salvador, estoque, nova operação...">
+            </div>
+
+            <div class="campo campo-full">
+                <label>📝 Descrição</label>
+                <textarea id="descricao" placeholder="Descreva o que aconteceu. Ex.: Hoje foram entregues 35 máquinas para uma nova operação em Salvador, conforme solicitação da diretoria."></textarea>
+            </div>
+
+            <div class="campo campo-full">
+                <label>🗒️ Observações</label>
+                <textarea id="observacao" placeholder="Digite informações adicionais, se necessário..."></textarea>
+            </div>
+
+        </div>
+
+        <button class="btn-registrar" onclick="registrarInterno()">💾 Salvar registro</button>
+    </section>
+
+    <section class="historico">
+        <h2>📋 Histórico de registros internos</h2>
+
+        <button class="btn-imprimir" onclick="imprimirRelatorio()">🖨️ Imprimir relatório</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Equipamento / Material</th>
+                    <th>Quantidade</th>
+                    <th>Responsável</th>
+                    <th>Origem / Destino</th>
+                    <th>Descrição</th>
+                    <th>Observações</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+
+            <tbody id="historico"></tbody>
+        </table>
+    </section>
+
+</main>
+
+<script>
+let registrosInternos =
+    JSON.parse(localStorage.getItem("registrosInternos")) || [];
+
+function definirDataAtual(){
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth()+1).padStart(2,"0");
+    const dia = String(hoje.getDate()).padStart(2,"0");
+
+    document.getElementById("dataRegistro").value =
+        `${ano}-${mes}-${dia}`;
+}
+
+function registrarInterno(){
+
+    const dataRegistro =
+        document.getElementById("dataRegistro").value;
+
+    const tipo =
+        document.getElementById("tipo").value;
+
+    const equipamento =
+        document.getElementById("equipamento").value.trim();
+
+    const quantidade =
+        Number(document.getElementById("quantidade").value) || 0;
+
+    const responsavel =
+        document.getElementById("responsavel").value.trim();
+
+    const origemDestino =
+        document.getElementById("origemDestino").value.trim();
+
+    const descricao =
+        document.getElementById("descricao").value.trim();
+
+    const observacao =
+        document.getElementById("observacao").value.trim();
+
+    if(!dataRegistro)
+        return alert("Informe a data do registro.");
+
+    if(!tipo)
+        return alert("Selecione o tipo do registro.");
+
+    if(!equipamento)
+        return alert("Informe o equipamento ou material.");
+
+    if(quantidade <= 0)
+        return alert("Informe uma quantidade válida.");
+
+    if(!descricao)
+        return alert("Digite uma descrição do registro.");
+
+    registrosInternos.push({
+        id: Date.now(),
+        dataRegistro,
+        tipo,
+        equipamento,
+        quantidade,
+        responsavel: responsavel || "-",
+        origemDestino: origemDestino || "-",
+        descricao,
+        observacao: observacao || "-"
+    });
+
+    localStorage.setItem(
+        "registrosInternos",
+        JSON.stringify(registrosInternos)
+    );
+
+    limparFormulario();
+
+    alert("✅ Registro interno salvo com sucesso!");
+
+    atualizarHistorico();
+}
+
+function limparFormulario(){
+
+    document.getElementById("tipo").value = "";
+    document.getElementById("equipamento").value = "";
+    document.getElementById("quantidade").value = 1;
+    document.getElementById("responsavel").value = "";
+    document.getElementById("origemDestino").value = "";
+    document.getElementById("descricao").value = "";
+    document.getElementById("observacao").value = "";
+
+    definirDataAtual();
+}
+
+function atualizarHistorico(){
+
+    const tb = document.getElementById("historico");
+
+    tb.innerHTML = "";
+
+    registrosInternos
+        .slice()
+        .reverse()
+        .forEach(r => {
+
+            const tr = document.createElement("tr");
+
+            const classeTipo =
+                r.tipo === "Saída"
+                ? "tipo-saida"
+                : "tipo-recebimento";
+
+            tr.innerHTML = `
+                <td>${escaparHTML(r.dataRegistro)}</td>
+
+                <td>
+                    <span class="${classeTipo}">
+                        ${escaparHTML(r.tipo)}
+                    </span>
+                </td>
+
+                <td>${escaparHTML(r.equipamento)}</td>
+
+                <td><strong>${r.quantidade}</strong></td>
+
+                <td>${escaparHTML(r.responsavel)}</td>
+
+                <td>${escaparHTML(r.origemDestino)}</td>
+
+                <td class="descricao">
+                    ${escaparHTML(r.descricao)}
+                </td>
+
+                <td class="observacao">
+                    ${escaparHTML(r.observacao)}
+                </td>
+
+                <td>
+                    <button
+                        class="btn-excluir"
+                        onclick="excluirRegistro(${r.id})">
+                        🗑️ Excluir
+                    </button>
+                </td>
+            `;
+
+            tb.appendChild(tr);
+        });
+}
+
+function excluirRegistro(id){
+
+    if(!confirm("Tem certeza que deseja excluir este registro?"))
+        return;
+
+    registrosInternos =
+        registrosInternos.filter(r => r.id !== id);
+
+    localStorage.setItem(
+        "registrosInternos",
+        JSON.stringify(registrosInternos)
+    );
+
+    atualizarHistorico();
+}
+
+function imprimirRelatorio(){
+
+    if(!registrosInternos.length)
+        return alert("Não há registros para imprimir.");
+
+    window.print();
+}
+
+function escaparHTML(texto){
+
+    if(texto === null || texto === undefined)
+        return "";
+
+    return String(texto)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+definirDataAtual();
+atualizarHistorico();
+</script>
+
+</body>
+</html>
