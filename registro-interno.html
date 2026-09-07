@@ -369,9 +369,45 @@ th{
 
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-let registrosInternos =
-    JSON.parse(localStorage.getItem("registrosInternos")) || [];
+const SUPABASE_URL = "https://ijzjrpdwbqarurnfdmpf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1Jq9M9jRiR_2I2ndxq5stg_R3gT4DBb";
+
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let registrosInternos = [];
+
+async function carregarRegistrosInternos(){
+    const { data, error } = await supabaseClient
+        .from("registros_internos")
+        .select("*")
+        .order("id", { ascending: false });
+
+    if(error){
+        console.error("Erro ao carregar registros internos:", error);
+        alert("Erro ao carregar os registros internos. Verifique a tabela e as políticas RLS no Supabase.");
+        return;
+    }
+
+    registrosInternos = (data || []).map(r => ({
+        id: r.id,
+        dataRegistro: r.data_registro,
+        tipo: r.tipo,
+        equipamento: r.equipamento,
+        quantidade: Number(r.quantidade) || 0,
+        responsavel: r.responsavel || "-",
+        origemDestino: r.origem_destino || "-",
+        descricao: r.descricao || "",
+        observacao: r.observacao || "-"
+    }));
+
+    atualizarHistorico();
+}
 
 function definirDataAtual(){
     const hoje = new Date();
@@ -383,7 +419,7 @@ function definirDataAtual(){
         `${ano}-${mes}-${dia}`;
 }
 
-function registrarInterno(){
+async function registrarInterno(){
 
     const dataRegistro =
         document.getElementById("dataRegistro").value;
@@ -424,22 +460,40 @@ function registrarInterno(){
     if(!descricao)
         return alert("Digite uma descrição do registro.");
 
-    registrosInternos.push({
-        id: Date.now(),
-        dataRegistro,
-        tipo,
-        equipamento,
-        quantidade,
+    const registro = {
+        data_registro: dataRegistro,
+        tipo: tipo,
+        equipamento: equipamento,
+        quantidade: quantidade,
         responsavel: responsavel || "-",
-        origemDestino: origemDestino || "-",
-        descricao,
+        origem_destino: origemDestino || "-",
+        descricao: descricao,
         observacao: observacao || "-"
-    });
+    };
 
-    localStorage.setItem(
-        "registrosInternos",
-        JSON.stringify(registrosInternos)
-    );
+    const { data, error } = await supabaseClient
+        .from("registros_internos")
+        .insert([registro])
+        .select()
+        .single();
+
+    if(error){
+        console.error("Erro ao salvar registro interno:", error);
+        alert("Erro ao salvar o registro. Verifique o Supabase e as políticas RLS.");
+        return;
+    }
+
+    registrosInternos.unshift({
+        id: data.id,
+        dataRegistro: data.data_registro,
+        tipo: data.tipo,
+        equipamento: data.equipamento,
+        quantidade: Number(data.quantidade) || 0,
+        responsavel: data.responsavel || "-",
+        origemDestino: data.origem_destino || "-",
+        descricao: data.descricao || "",
+        observacao: data.observacao || "-"
+    });
 
     limparFormulario();
 
@@ -467,68 +521,71 @@ function atualizarHistorico(){
 
     tb.innerHTML = "";
 
-    registrosInternos
-        .slice()
-        .reverse()
-        .forEach(r => {
+    registrosInternos.forEach(r => {
 
-            const tr = document.createElement("tr");
+        const tr = document.createElement("tr");
 
-            const classeTipo =
-                r.tipo === "Saída"
-                ? "tipo-saida"
-                : "tipo-recebimento";
+        const classeTipo =
+            r.tipo === "Saída"
+            ? "tipo-saida"
+            : "tipo-recebimento";
 
-            tr.innerHTML = `
-                <td>${escaparHTML(r.dataRegistro)}</td>
+        tr.innerHTML = `
+            <td>${escaparHTML(r.dataRegistro)}</td>
 
-                <td>
-                    <span class="${classeTipo}">
-                        ${escaparHTML(r.tipo)}
-                    </span>
-                </td>
+            <td>
+                <span class="${classeTipo}">
+                    ${escaparHTML(r.tipo)}
+                </span>
+            </td>
 
-                <td>${escaparHTML(r.equipamento)}</td>
+            <td>${escaparHTML(r.equipamento)}</td>
 
-                <td><strong>${r.quantidade}</strong></td>
+            <td><strong>${r.quantidade}</strong></td>
 
-                <td>${escaparHTML(r.responsavel)}</td>
+            <td>${escaparHTML(r.responsavel)}</td>
 
-                <td>${escaparHTML(r.origemDestino)}</td>
+            <td>${escaparHTML(r.origemDestino)}</td>
 
-                <td class="descricao">
-                    ${escaparHTML(r.descricao)}
-                </td>
+            <td class="descricao">
+                ${escaparHTML(r.descricao)}
+            </td>
 
-                <td class="observacao">
-                    ${escaparHTML(r.observacao)}
-                </td>
+            <td class="observacao">
+                ${escaparHTML(r.observacao)}
+            </td>
 
-                <td>
-                    <button
-                        class="btn-excluir"
-                        onclick="excluirRegistro(${r.id})">
-                        🗑️ Excluir
-                    </button>
-                </td>
-            `;
+            <td>
+                <button
+                    class="btn-excluir"
+                    onclick="excluirRegistro(${r.id})">
+                    🗑️ Excluir
+                </button>
+            </td>
+        `;
 
-            tb.appendChild(tr);
-        });
+        tb.appendChild(tr);
+    });
 }
 
-function excluirRegistro(id){
+async function excluirRegistro(id){
 
     if(!confirm("Tem certeza que deseja excluir este registro?"))
         return;
 
-    registrosInternos =
-        registrosInternos.filter(r => r.id !== id);
+    const { error } = await supabaseClient
+        .from("registros_internos")
+        .delete()
+        .eq("id", id);
 
-    localStorage.setItem(
-        "registrosInternos",
-        JSON.stringify(registrosInternos)
-    );
+    if(error){
+        console.error("Erro ao excluir registro:", error);
+        alert("Erro ao excluir o registro. Verifique as políticas RLS no Supabase.");
+        return;
+    }
+
+    registrosInternos =
+        registrosInternos.filter(r => String(r.id) !== String(id));
 
     atualizarHistorico();
 }
@@ -555,8 +612,7 @@ function escaparHTML(texto){
 }
 
 definirDataAtual();
-atualizarHistorico();
+carregarRegistrosInternos();
 </script>
-
 </body>
 </html>
