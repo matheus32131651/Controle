@@ -1,4 +1,10 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Controle de Saída de Equipamentos - Retirada</title><style>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Saída de Equipamentos - Retirada</title>
+<style>
 
 /* =========================================
    CONFIGURAÇÕES GERAIS
@@ -420,23 +426,269 @@ th {
 }
 
 /* MENU ENTRE PAGINAS */
-.nav-pages{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.nav-btn{border:none;padding:11px 15px;border-radius:8px;cursor:pointer;font-weight:bold;text-decoration:none;display:inline-block}.nav-btn.saida{background:#126be9;color:white}.nav-btn.estoque{background:#22c55e;color:white}.nav-btn:hover{filter:brightness(.92)}
-.entrada-resumo{background:white;padding:25px;border-radius:15px;border:1px solid #e3e8f1;box-shadow:0 5px 20px rgba(26,50,100,.07);margin-bottom:25px}.entrada-resumo h2{margin-bottom:20px}.badge-independente{display:inline-block;margin-top:10px;padding:6px 10px;border-radius:20px;background:#eaf2ff;color:#126be9;font-size:12px;font-weight:bold}
-@media(max-width:700px){.topbar{flex-direction:column;align-items:flex-start;gap:15px}.nav-pages{width:100%}.nav-btn{flex:1;text-align:center}}
-</style></head><body><header class="topbar"><div class="logo"><div class="logo-icon">📦</div><div><h2>Controle de Equipamentos</h2><span>Registro de saída - TI</span></div></div><nav class="nav-pages"></nav></header><main class="container"><div class="page-title"><h1>📤 Saída de Equipamentos</h1><p>Registre a retirada de teclados, mouses, headsets e notebooks para os setores da empresa.</p><span class="badge-independente">🔓 Registro de saída independente do estoque</span></div>
-<div class="cards"><div class="card"><span>📦 Total saídas</span><strong id="totalEquipamentos">0</strong></div><div class="card"><span>⌨️ Teclados saídos</span><strong id="totalTeclados">0</strong></div><div class="card"><span>🖱️ Mouses saídos</span><strong id="totalMouses">0</strong></div><div class="card"><span>🎧 Headsets saídos</span><strong id="totalHeadsets">0</strong></div><div class="card"><span>💻 Notebooks saídos</span><strong id="totalNotebooks">0</strong></div></div>
-<section class="form-box"><h2>➕ Registrar nova saída</h2><div class="form-grid"><div class="campo"><label>Responsável</label><input type="text" id="responsavel" placeholder="Nome do responsável"></div><div class="campo"><label>Número do chamado</label><input type="text" id="chamado" placeholder="Ex.: CH-123456"></div><div class="campo"><label>📅 Data do registro</label><input type="date" id="dataRegistro"></div><div class="campo"><label>🔒 Número do lacre <small style="color:#6b7893;font-weight:normal;">(Obrigatório apenas para Headset)</small></label><input type="text" id="lacre" placeholder="Digite o número do lacre"></div><div class="campo"><label>Setor</label><select id="setor"><option value="">Selecione o setor</option><option value="LIGMINAS">LIGMINAS</option><option value="ME">ME</option><option value="SEST/SENAT">SEST/SENAT</option></select></div></div><h3 style="margin-top:25px;margin-bottom:12px;">Equipamentos retirados</h3><div class="equipamentos"><div class="equipamento"><label>⌨️ Teclados</label><input type="number" id="teclado" min="0" value="0"></div><div class="equipamento"><label>🖱️ Mouses</label><input type="number" id="mouse" min="0" value="0"></div><div class="equipamento"><label>🎧 Headsets</label><input type="number" id="headset" min="0" value="0"></div><div class="equipamento"><label>💻 Notebooks</label><input type="number" id="notebook" min="0" value="0"></div></div><div class="campo" style="margin-top:20px;"><label>Observação</label><textarea id="observacao" placeholder="Digite alguma observação..."></textarea></div><button class="btn-registrar" onclick="registrarSaida()">📤 Registrar saída</button></section>
-<section class="resumo"><h2>📊 Resumo por setor</h2><table><thead><tr><th>Setor</th><th>Quantidade</th><th>Porcentagem</th></tr></thead><tbody id="resumoSetores"></tbody></table></section>
-<section class="historico"><h2>📋 Histórico de saídas</h2><button class="btn-imprimir" onclick="imprimirRelatorio()">🖨️ Imprimir relatório final</button><table><thead><tr><th>Data do Registro</th><th>Responsável</th><th>Nº Chamado</th><th>Nº Lacre</th><th>Setor</th><th>Teclados</th><th>Mouses</th><th>Headsets</th><th>Notebooks</th><th>Total</th><th>Ação</th></tr></thead><tbody id="historico"></tbody></table></section></main><script>let registros=JSON.parse(localStorage.getItem("saidasEquipamentos"))||[];function registrarSaida(){const responsavel=document.getElementById("responsavel").value.trim(),chamado=document.getElementById("chamado").value.trim(),setor=document.getElementById("setor").value,teclado=Number(document.getElementById("teclado").value)||0,mouse=Number(document.getElementById("mouse").value)||0,headset=Number(document.getElementById("headset").value)||0,notebook=Number(document.getElementById("notebook").value)||0,observacao=document.getElementById("observacao").value.trim(),dataRegistro=document.getElementById("dataRegistro").value,lacre=document.getElementById("lacre").value.trim();if(!responsavel)return alert("Digite o nome do responsável.");if(!setor)return alert("Selecione o setor.");if(!chamado)return alert("Informe o número do chamado.");if(!dataRegistro)return alert("Informe a data do registro.");const total=teclado+mouse+headset+notebook;if(total<=0)return alert("Informe pelo menos um equipamento.");if(headset>0&&!lacre)return alert("O número do lacre é OBRIGATÓRIO quando houver saída de Headsets.");registros.push({id:Date.now(),dataRegistro,lacre:lacre||"-",responsavel,chamado,setor,teclado,mouse,headset,notebook,total,observacao});localStorage.setItem("saidasEquipamentos",JSON.stringify(registros));["responsavel","chamado","dataRegistro","lacre","observacao"].forEach(id=>document.getElementById(id).value="");document.getElementById("setor").value="";["teclado","mouse","headset","notebook"].forEach(id=>document.getElementById(id).value=0);alert("✅ Saída registrada com sucesso! Não houve consulta nem alteração no estoque.");atualizarTela()}function atualizarTela(){atualizarTotais();atualizarResumo();atualizarHistorico()}function atualizarTotais(){let t=0,m=0,h=0,n=0;registros.forEach(r=>{t+=r.teclado;m+=r.mouse;h+=r.headset;n+=r.notebook||0});document.getElementById("totalEquipamentos").textContent=t+m+h+n;document.getElementById("totalTeclados").textContent=t;document.getElementById("totalMouses").textContent=m;document.getElementById("totalHeadsets").textContent=h;document.getElementById("totalNotebooks").textContent=n}function atualizarResumo(){const setores={};registros.forEach(r=>{setores[r.setor]=(setores[r.setor]||0)+r.total});const total=Object.values(setores).reduce((a,b)=>a+b,0),tb=document.getElementById("resumoSetores");tb.innerHTML="";Object.entries(setores).sort((a,b)=>b[1]-a[1]).forEach(([setor,qtd])=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${escaparHTML(setor)}</td><td>${qtd}</td><td class="porcentagem">${total?(qtd/total*100).toFixed(2):"0.00"}%</td>`;tb.appendChild(tr)})}function atualizarHistorico(){const tb=document.getElementById("historico");tb.innerHTML="";registros.slice().reverse().forEach(r=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${escaparHTML(r.dataRegistro)}</td><td>${escaparHTML(r.responsavel)}</td><td>${escaparHTML(r.chamado||"Não informado")}</td><td>${escaparHTML(r.lacre)}</td><td>${escaparHTML(r.setor)}</td><td>${r.teclado}</td><td>${r.mouse}</td><td>${r.headset}</td><td>${r.notebook||0}</td><td><strong>${r.total}</strong></td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️ Excluir</button></td>`;tb.appendChild(tr)})}function imprimirRelatorio(){if(!registros.length)return alert("Não há registros para imprimir.");window.print()}function excluirRegistro(id){if(!confirm("Tem certeza que deseja excluir este registro?"))return;registros=registros.filter(r=>r.id!==id);localStorage.setItem("saidasEquipamentos",JSON.stringify(registros));atualizarTela()}function escaparHTML(t){if(!t)return"";return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}atualizarTela();
+.nav-pages { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.nav-btn { border: none; padding: 11px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; font-size: 13px; }
+.nav-btn.saida { background: #126be9; color: white; }
+.nav-btn.interno { background: #3b82f6; color: white; opacity: 0.8; }
+.nav-btn.interno:hover { opacity: 1; }
+.nav-btn:hover { filter: brightness(.92); }
 
+.entrada-resumo { background: white; padding: 25px; border-radius: 15px; border: 1px solid #e3e8f1; box-shadow: 0 5px 20px rgba(26,50,100,.07); margin-bottom: 25px; }
+.entrada-resumo h2 { margin-bottom: 20px; }
+.badge-independente { display: inline-block; margin-top: 10px; padding: 6px 10px; border-radius: 20px; background: #eaf2ff; color: #126be9; font-size: 12px; font-weight: bold; }
 
+@media(max-width: 700px) {
+    .topbar { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .nav-pages { width: 100%; }
+    .nav-btn { flex: 1; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="logo">
+        <div class="logo-icon">📦</div>
+        <div>
+            <h2>Controle de Equipamentos</h2>
+            <span>Registro de saída - TI</span>
+        </div>
+    </div>
+    <nav class="nav-pages">
+        <a href="index.html" class="nav-btn saida">📤 Registro de Saída</a>
+        <a href="registro-interno.html" class="nav-btn interno">📋 Registro Interno</a>
+    </nav>
+</header>
+
+<main class="container">
+    <div class="page-title">
+        <h1>📤 Saída de Equipamentos</h1>
+        <p>Registre a retirada de teclados, mouses, headsets e notebooks para os setores da empresa.</p>
+        <span class="badge-independente">🔓 Registro de saída independente do estoque</span>
+    </div>
+
+    <div class="cards">
+        <div class="card"><span>📦 Total saídas</span><strong id="totalEquipamentos">0</strong></div>
+        <div class="card"><span>⌨️ Teclados saídos</span><strong id="totalTeclados">0</strong></div>
+        <div class="card"><span>🖱️ Mouses saídos</span><strong id="totalMouses">0</strong></div>
+        <div class="card"><span>🎧 Headsets saídos</span><strong id="totalHeadsets">0</strong></div>
+        <div class="card"><span>💻 Notebooks saídos</span><strong id="totalNotebooks">0</strong></div>
+    </div>
+
+    <section class="form-box">
+        <h2>➕ Registrar nova saída</h2>
+        <div class="form-grid">
+            <div class="campo">
+                <label>Responsável</label>
+                <input type="text" id="responsavel" placeholder="Nome do responsável">
+            </div>
+            <div class="campo">
+                <label>Número do chamado</label>
+                <input type="text" id="chamado" placeholder="Ex.: CH-123456">
+            </div>
+            <div class="campo">
+                <label>📅 Data do registro</label>
+                <input type="date" id="dataRegistro">
+            </div>
+            <div class="campo">
+                <label>🔒 Número do lacre <small style="color:#6b7893;font-weight:normal;">(Obrigatório apenas para Headset)</small></label>
+                <input type="text" id="lacre" placeholder="Digite o número do lacre">
+            </div>
+            <div class="campo">
+                <label>Setor</label>
+                <select id="setor">
+                    <option value="">Selecione o setor</option>
+                    <option value="LIGMINAS">LIGMINAS</option>
+                    <option value="ME">ME</option>
+                    <option value="SEST/SENAT">SEST/SENAT</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="margin-top:25px;margin-bottom:12px;">Equipamentos retirados</h3>
+        <div class="equipamentos">
+            <div class="equipamento">
+                <label>⌨️ Teclados</label>
+                <input type="number" id="teclado" min="0" value="0">
+            </div>
+            <div class="equipamento">
+                <label>🖱️ Mouses</label>
+                <input type="number" id="mouse" min="0" value="0">
+            </div>
+            <div class="equipamento">
+                <label>🎧 Headsets</label>
+                <input type="number" id="headset" min="0" value="0">
+            </div>
+            <div class="equipamento">
+                <label>💻 Notebooks</label>
+                <input type="number" id="notebook" min="0" value="0">
+            </div>
+        </div>
+
+        <div class="campo" style="margin-top:20px;">
+            <label>Observação</label>
+            <textarea id="observacao" placeholder="Digite alguma observação..."></textarea>
+        </div>
+
+        <button class="btn-registrar" onclick="registrarSaida()">📤 Registrar saída</button>
+    </section>
+
+    <section class="resumo">
+        <h2>📊 Resumo por setor</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Setor</th>
+                    <th>Quantidade</th>
+                    <th>Porcentagem</th>
+                </tr>
+            </thead>
+            <tbody id="resumoSetores"></tbody>
+        </table>
+    </section>
+
+    <section class="historico">
+        <h2>📋 Histórico de saídas</h2>
+        <button class="btn-imprimir" onclick="imprimirRelatorio()">🖨️ Imprimir relatório final</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data do Registro</th>
+                    <th>Responsável</th>
+                    <th>Nº Chamado</th>
+                    <th>Nº Lacre</th>
+                    <th>Setor</th>
+                    <th>Teclados</th>
+                    <th>Mouses</th>
+                    <th>Headsets</th>
+                    <th>Notebooks</th>
+                    <th>Total</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="historico"></tbody>
+        </table>
+    </section>
+</main>
+
+<script>
+let registros = JSON.parse(localStorage.getItem("saidasEquipamentos")) || [];
+
+function registrarSaida() {
+    const responsavel = document.getElementById("responsavel").value.trim(),
+          chamado = document.getElementById("chamado").value.trim(),
+          setor = document.getElementById("setor").value,
+          teclado = Number(document.getElementById("teclado").value) || 0,
+          mouse = Number(document.getElementById("mouse").value) || 0,
+          headset = Number(document.getElementById("headset").value) || 0,
+          notebook = Number(document.getElementById("notebook").value) || 0,
+          observacao = document.getElementById("observacao").value.trim(),
+          dataRegistro = document.getElementById("dataRegistro").value,
+          lacre = document.getElementById("lacre").value.trim();
+
+    if (!responsavel) return alert("Digite o nome do responsável.");
+    if (!setor) return alert("Selecione o setor.");
+    if (!chamado) return alert("Informe o número do chamado.");
+    if (!dataRegistro) return alert("Informe a data do registro.");
+
+    const total = teclado + mouse + headset + notebook;
+    if (total <= 0) return alert("Informe pelo menos um equipamento.");
+    if (headset > 0 && !lacre) return alert("O número do lacre é OBRIGATÓRIO quando houver saída de Headsets.");
+
+    registros.push({
+        id: Date.now(),
+        dataRegistro,
+        lacre: lacre || "-",
+        responsavel,
+        chamado,
+        setor,
+        teclado,
+        mouse,
+        headset,
+        notebook,
+        total,
+        observacao
+    });
+
+    localStorage.setItem("saidasEquipamentos", JSON.stringify(registros));
+
+    ["responsavel", "chamado", "dataRegistro", "lacre", "observacao"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("setor").value = "";
+    ["teclado", "mouse", "headset", "notebook"].forEach(id => document.getElementById(id).value = 0);
+
+    alert("✅ Saída registrada com sucesso! Não houve consulta nem alteração no estoque.");
+    atualizarTela();
+}
+
+function atualizarTela() {
+    atualizarTotais();
+    atualizarResumo();
+    atualizarHistorico();
+}
+
+function atualizarTotais() {
+    let t = 0, m = 0, h = 0, n = 0;
+    registros.forEach(r => {
+        t += r.teclado;
+        m += r.mouse;
+        h += r.headset;
+        n += r.notebook || 0;
+    });
+    document.getElementById("totalEquipamentos").textContent = t + m + h + n;
+    document.getElementById("totalTeclados").textContent = t;
+    document.getElementById("totalMouses").textContent = m;
+    document.getElementById("totalHeadsets").textContent = h;
+    document.getElementById("totalNotebooks").textContent = n;
+}
+
+function atualizarResumo() {
+    const setores = {};
+    registros.forEach(r => {
+        setores[r.setor] = (setores[r.setor] || 0) + r.total;
+    });
+    const total = Object.values(setores).reduce((a, b) => a + b, 0),
+          tb = document.getElementById("resumoSetores");
+    tb.innerHTML = "";
+    Object.entries(setores).sort((a, b) => b[1] - a[1]).forEach(([setor, qtd]) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${escaparHTML(setor)}</td><td>${qtd}</td><td class="porcentagem">${total ? (qtd / total * 100).toFixed(2) : "0.00"}%</td>`;
+        tb.appendChild(tr);
+    });
+}
+
+function atualizarHistorico() {
+    const tb = document.getElementById("historico");
+    tb.innerHTML = "";
+    registros.slice().reverse().forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${escaparHTML(r.dataRegistro)}</td><td>${escaparHTML(r.responsavel)}</td><td>${escaparHTML(r.chamado || "Não informado")}</td><td>${escaparHTML(r.lacre)}</td><td>${escaparHTML(r.setor)}</td><td>${r.teclado}</td><td>${r.mouse}</td><td>${r.headset}</td><td>${r.notebook || 0}</td><td><strong>${r.total}</strong></td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️ Excluir</button></td>`;
+        tb.appendChild(tr);
+    });
+}
+
+function imprimirRelatorio() {
+    if (!registros.length) return alert("Não há registros para imprimir.");
+    window.print();
+}
+
+function excluirRegistro(id) {
+    if (!confirm("Tem certeza que deseja excluir este registro?")) return;
+    registros = registros.filter(r => r.id !== id);
+    localStorage.setItem("saidasEquipamentos", JSON.stringify(registros));
+    atualizarTela();
+}
+
+function escaparHTML(t) {
+    if (!t) return "";
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+atualizarTela();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
 const SUPABASE_URL = "https://ijzjrpdwbqarurnfdmpf.supabase.co";
-
 const SUPABASE_KEY = "sb_publishable_1Jq9M9jRiR_2I2ndxq5stg_R3gT4DBb";
 
 const supabaseClient = supabase.createClient(
@@ -444,4 +696,5 @@ const supabaseClient = supabase.createClient(
     SUPABASE_KEY
 );
 </script>
-</body></html>
+</body>
+</html>
