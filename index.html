@@ -571,7 +571,14 @@ th {
     </section>
 </main>
 
+<!-- Substitua a tag <script> final de index.html por esta: -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://ijzjrpdwbqarurnfdmpf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1Jq9M9jRiR_2I2ndxq5stg_R3gT4DBb";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let registros = [];
 
 async function carregarRegistros() {
@@ -587,11 +594,10 @@ async function carregarRegistros() {
     }
 
     registros = data || [];
-
     atualizarTela();
 }
 
-function registrarSaida() {
+async function registrarSaida() {
     const responsavel = document.getElementById("responsavel").value.trim(),
           chamado = document.getElementById("chamado").value.trim(),
           setor = document.getElementById("setor").value,
@@ -613,33 +619,34 @@ function registrarSaida() {
     if (headset > 0 && !lacre) return alert("O número do lacre é OBRIGATÓRIO quando houver saída de Headsets.");
 
     const { data, error } = await supabaseClient
-    .from("saidas_equipamentos")
-    .insert([{
-        data_registro: dataRegistro,
-        lacre: lacre || null,
-        responsavel: responsavel,
-        chamado: chamado,
-        setor: setor,
-        teclado: teclado,
-        mouse: mouse,
-        headset: headset,
-        notebook: notebook,
-        total: total,
-        observacao: observacao || null
-    }])
-    .select();
+        .from("saidas_equipamentos")
+        .insert([{
+            data_registro: dataRegistro,
+            lacre: lacre || null,
+            responsavel: responsavel,
+            chamado: chamado,
+            setor: setor,
+            teclado: teclado,
+            mouse: mouse,
+            headset: headset,
+            notebook: notebook,
+            total: total,
+            observacao: observacao || null
+        }])
+        .select();
 
-if (error) {
-    console.error(error);
-    alert("Erro ao registrar a saída.");
-    return;
-}
+    if (error) {
+        console.error(error);
+        alert("Erro ao registrar a saída.");
+        return;
+    }
+
     ["responsavel", "chamado", "dataRegistro", "lacre", "observacao"].forEach(id => document.getElementById(id).value = "");
     document.getElementById("setor").value = "";
     ["teclado", "mouse", "headset", "notebook"].forEach(id => document.getElementById(id).value = 0);
 
-    alert("✅ Saída registrada com sucesso! Não houve consulta nem alteração no estoque.");
-    atualizarTela();
+    alert("✅ Saída registrada com sucesso!");
+    await carregarRegistros();
 }
 
 function atualizarTela() {
@@ -651,10 +658,10 @@ function atualizarTela() {
 function atualizarTotais() {
     let t = 0, m = 0, h = 0, n = 0;
     registros.forEach(r => {
-        t += r.teclado;
-        m += r.mouse;
-        h += r.headset;
-        n += r.notebook || 0;
+        t += Number(r.teclado) || 0;
+        m += Number(r.mouse) || 0;
+        h += Number(r.headset) || 0;
+        n += Number(r.notebook) || 0;
     });
     document.getElementById("totalEquipamentos").textContent = t + m + h + n;
     document.getElementById("totalTeclados").textContent = t;
@@ -666,7 +673,8 @@ function atualizarTotais() {
 function atualizarResumo() {
     const setores = {};
     registros.forEach(r => {
-        setores[r.setor] = (setores[r.setor] || 0) + r.total;
+        const totalItem = Number(r.total) || 0;
+        setores[r.setor] = (setores[r.setor] || 0) + totalItem;
     });
     const total = Object.values(setores).reduce((a, b) => a + b, 0),
           tb = document.getElementById("resumoSetores");
@@ -678,26 +686,23 @@ function atualizarResumo() {
     });
 }
 
-async function atualizarHistorico() {
+function atualizarHistorico() {
     const tb = document.getElementById("historico");
     tb.innerHTML = "";
-    registros.slice().reverse().forEach(r => {
+    registros.forEach(r => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${escaparHTML(r.dataRegistro)}</td><td>${escaparHTML(r.responsavel)}</td><td>${escaparHTML(r.chamado || "Não informado")}</td><td>${escaparHTML(r.lacre)}</td><td>${escaparHTML(r.setor)}</td><td>${r.teclado}</td><td>${r.mouse}</td><td>${r.headset}</td><td>${r.notebook || 0}</td><td><strong>${r.total}</strong></td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️ Excluir</button></td>`;
+        tr.innerHTML = `<td>${escaparHTML(r.data_registro)}</td><td>${escaparHTML(r.responsavel)}</td><td>${escaparHTML(r.chamado || "Não informado")}</td><td>${escaparHTML(r.lacre || "-")}</td><td>${escaparHTML(r.setor)}</td><td>${r.teclado}</td><td>${r.mouse}</td><td>${r.headset}</td><td>${r.notebook || 0}</td><td><strong>${r.total}</strong></td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️ Excluir</button></td>`;
         tb.appendChild(tr);
     });
 }
 
-async function imprimirRelatorio() {
+function imprimirRelatorio() {
     if (!registros.length) return alert("Não há registros para imprimir.");
     window.print();
 }
 
 async function excluirRegistro(id) {
-
-    if (!confirm("Tem certeza que deseja excluir este registro?")) {
-        return;
-    }
+    if (!confirm("Tem certeza que deseja excluir este registro?")) return;
 
     const { error } = await supabaseClient
         .from("saidas_equipamentos")
@@ -713,23 +718,13 @@ async function excluirRegistro(id) {
     await carregarRegistros();
 }
 
-async function escaparHTML(t) {
+function escaparHTML(t) {
     if (!t) return "";
-    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-atualizarTela();
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://ijzjrpdwbqarurnfdmpf.supabase.co";
-const SUPABASE_KEY = "sb_publishable_1Jq9M9jRiR_2I2ndxq5stg_R3gT4DBb";
-
-const supabaseClient = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+// Inicializa os dados ao abrir a página
+carregarRegistros();
 </script>
 </body>
 </html>
