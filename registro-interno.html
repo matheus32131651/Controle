@@ -372,6 +372,22 @@ th{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
+    // Verifica se o usuário está logado
+async function verificarAutenticacao() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        window.location.href = "login.html"; // Redireciona para o login se não houver sessão
+    }
+}
+
+// Botão opcional para Sair/Sair da Conta
+async function fazerLogout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+}
+
+verificarAutenticacao();
 const SUPABASE_URL = "https://ijzjrpdwbqarurnfdmpf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_1Jq9M9jRiR_2I2ndxq5stg_R3gT4DBb";
 
