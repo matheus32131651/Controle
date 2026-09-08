@@ -388,13 +388,28 @@ async function fazerLogout() {
 }
 
 verificarAutenticacao();
+// 1. Inicializa o cliente Supabase
 const SUPABASE_URL = "https://ijzjrpdwbqarurnfdmpf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_1Jq9M9jRiR_2I2ndxq5stg_R3gT4DBb";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const supabaseClient = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+// 2. Trava a página: se não estiver logado, manda para o login.html
+async function verificarAutenticacao() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        window.location.href = "login.html";
+    }
+}
+
+// 3. Função para o botão de "Sair"
+async function fazerLogout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+}
+
+// Executa a verificação ao carregar a página
+verificarAutenticacao();
+
 
 let registrosInternos = [];
 
